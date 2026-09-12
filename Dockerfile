@@ -33,7 +33,6 @@ RUN composer dump-autoload --optimize \
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV LOG_CHANNEL=stderr
-ENV PORT=8000
 
 EXPOSE 8000
 
