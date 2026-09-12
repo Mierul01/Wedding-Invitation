@@ -158,13 +158,45 @@ database/migrations/                  # wedding_settings, rsvps tables
 
 ---
 
-## Deployment notes
+## Deployment
 
-- Set `APP_ENV=production` and `APP_DEBUG=false`
-- Run `php artisan config:cache` and `php artisan route:cache`
-- Ensure `storage/` and `bootstrap/cache/` are writable
-- Run `php artisan storage:link` on the server for music uploads
-- Do **not** commit `.env` — configure mail, database, and `APP_URL` on the server
+### Important: Vercel is not supported
+
+This is a **Laravel PHP** app (server, database, sessions, file uploads).  
+[Vercel](https://vercel.com) expects a frontend build output like `dist` (Vite/Next.js). That is why you see:
+
+> No Output Directory named "dist" found after the Build completed.
+
+Do **not** deploy this project to Vercel. Use a PHP host instead.
+
+### Recommended hosts
+
+| Host | Notes |
+|------|--------|
+| [Railway](https://railway.app) | Easy Laravel + MySQL/Postgres |
+| [Render](https://render.com) | Web service + database |
+| [Laravel Cloud](https://cloud.laravel.com) | Official Laravel hosting |
+| Shared hosting (cPanel) | Upload files, set document root to `public/` |
+
+### Production checklist
+
+1. Set environment variables on the host:
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `APP_KEY=` (from `php artisan key:generate --show`)
+   - `APP_URL=` your live URL
+   - Database credentials (`DB_*`) — prefer MySQL/Postgres in production
+2. Document root / public path must point to the **`public/`** folder
+3. Run on the server:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   php artisan migrate --force
+   php artisan storage:link
+   php artisan config:cache
+   php artisan route:cache
+   ```
+4. Ensure `storage/` and `bootstrap/cache/` are writable
+5. Do **not** commit `.env`
 
 ---
 
