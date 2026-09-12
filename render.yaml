@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: wedding-invitation
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: Kad Perkahwinan
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        fromService:
+          type: web
+          name: wedding-invitation
+          property: host
+
+  - type: pserv
+    name: wedding-db
+    runtime: postgres
+    plan: free
+    databases:
+      - name: wedding

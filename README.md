@@ -163,40 +163,54 @@ database/migrations/                  # wedding_settings, rsvps tables
 ### Important: Vercel is not supported
 
 This is a **Laravel PHP** app (server, database, sessions, file uploads).  
-[Vercel](https://vercel.com) expects a frontend build output like `dist` (Vite/Next.js). That is why you see:
+Vercel expects a frontend build output like `dist` (Vite/Next.js), which is why that deploy fails.
 
-> No Output Directory named "dist" found after the Build completed.
+Use **Railway** (recommended) or **Render** instead. This repo includes Docker + deploy configs for both.
 
-Do **not** deploy this project to Vercel. Use a PHP host instead.
+### Deploy on Railway (recommended)
 
-### Recommended hosts
+1. Push this repo to GitHub (already done: [Mierul01/Wedding-Invitation](https://github.com/Mierul01/Wedding-Invitation))
+2. Go to [railway.app](https://railway.app) → **Login with GitHub**
+3. **New Project** → **Deploy from GitHub repo** → select `Wedding-Invitation`
+4. Add a database: **+ New** → **Database** → **PostgreSQL**
+5. Open the **web service** → **Variables** and set:
 
-| Host | Notes |
-|------|--------|
-| [Railway](https://railway.app) | Easy Laravel + MySQL/Postgres |
-| [Render](https://render.com) | Web service + database |
-| [Laravel Cloud](https://cloud.laravel.com) | Official Laravel hosting |
-| Shared hosting (cPanel) | Upload files, set document root to `public/` |
+| Variable | Value |
+|----------|--------|
+| `APP_NAME` | `Kad Perkahwinan` |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_KEY` | run locally: `php artisan key:generate --show` and paste the result |
+| `APP_URL` | your Railway public URL (e.g. `https://wedding-invitation-production.up.railway.app`) |
+| `LOG_CHANNEL` | `stderr` |
+| `SESSION_DRIVER` | `database` |
+| `CACHE_STORE` | `database` |
+| `QUEUE_CONNECTION` | `database` |
+| `DB_CONNECTION` | `pgsql` |
 
-### Production checklist
+6. Link Postgres to the web service (Railway usually injects `DATABASE_URL` automatically when you connect the database)
+7. **Settings** → **Networking** → **Generate Domain**
+8. Update `APP_URL` to that domain, then redeploy
 
-1. Set environment variables on the host:
-   - `APP_ENV=production`
-   - `APP_DEBUG=false`
-   - `APP_KEY=` (from `php artisan key:generate --show`)
-   - `APP_URL=` your live URL
-   - Database credentials (`DB_*`) — prefer MySQL/Postgres in production
-2. Document root / public path must point to the **`public/`** folder
-3. Run on the server:
-   ```bash
-   composer install --no-dev --optimize-autoloader
-   php artisan migrate --force
-   php artisan storage:link
-   php artisan config:cache
-   php artisan route:cache
-   ```
-4. Ensure `storage/` and `bootstrap/cache/` are writable
-5. Do **not** commit `.env`
+After deploy:
+
+- Invitation: `https://YOUR-DOMAIN/`
+- Admin: `https://YOUR-DOMAIN/admin/login`
+- Login: `admin@wedding.test` / `password`
+
+### Deploy on Render
+
+1. Go to [render.com](https://render.com) → **New** → **Blueprint**
+2. Connect the `Wedding-Invitation` GitHub repo (uses `render.yaml`)
+3. Add the same env vars as above (`APP_KEY`, `APP_URL`, etc.)
+4. Connect the Postgres instance from the blueprint and set `DATABASE_URL`
+
+### Production notes
+
+- Uploaded music files may not persist on free PaaS disks — prefer a **music URL** in admin settings
+- Seeder only runs when the database is empty (safe to redeploy)
+- Document root is handled by Docker (`php artisan serve` on `$PORT`)
+- Do **not** commit `.env`
 
 ---
 
